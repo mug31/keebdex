@@ -51,6 +51,11 @@ class _DaftarKeyboardPageState extends State<DaftarKeyboardPage> {
     setState(() => _daftar = QmkApi.instance.ambilDaftar());
   }
 
+  /// true ketika pencarian atau penyaring merek sedang aktif, sehingga
+  /// jumlah keseluruhan perlu ditampilkan sebagai pembanding.
+  bool get _sedangDisaring =>
+      _merekAktif != _semua || _pencarian.text.trim().isNotEmpty;
+
   List<KeyboardRingkas> _saring(List<KeyboardRingkas> semua) {
     final kata = _pencarian.text.trim();
 
@@ -107,13 +112,17 @@ class _DaftarKeyboardPageState extends State<DaftarKeyboardPage> {
                               ),
                             ),
                             const Spacer(),
-                            Text(
-                              'dari ${snapshot.data!.length} total',
-                              style: gayaMono(
-                                ukuran: 11,
-                                warna: Warna.teksRedup,
+                            // Jumlah keseluruhan hanya berguna sebagai
+                            // pembanding ketika daftar sedang disaring;
+                            // tanpa saringan angkanya sama persis.
+                            if (_sedangDisaring)
+                              Text(
+                                'dari ${snapshot.data!.length} keyboard',
+                                style: gayaMono(
+                                  ukuran: 11,
+                                  warna: Warna.teksRedup,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),

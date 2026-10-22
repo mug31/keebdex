@@ -171,10 +171,11 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
                 style: gayaMono(ukuran: 12, warna: Warna.amber),
               ),
               const Spacer(),
-              Text(
-                denah.nama,
-                style: gayaMono(ukuran: 9, warna: Warna.teksRedup),
-              ),
+              if (kb.denah.length == 1)
+                Text(
+                  denah.nama,
+                  style: gayaMono(ukuran: 9, warna: Warna.teksRedup),
+                ),
             ],
           ),
           const SizedBox(height: 14),
@@ -187,7 +188,7 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
                 children: [
                   for (var i = 0; i < kb.denah.length; i++) ...[
                     _tombolVarian(
-                      label: '${kb.denah[i].jumlahTombol}',
+                      label: kb.denah[i].labelSingkat,
                       aktif: i == indeks,
                       onTap: () => setState(() => _indeksDenah = i),
                     ),
@@ -198,7 +199,8 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Keyboard ini punya ${kb.denah.length} varian susunan tombol.',
+              '${kb.denah.length} varian susunan tombol. Varian aktif: '
+              '${denah.nama}.',
               style: const TextStyle(fontSize: 10, color: Warna.teksRedup),
             ),
           ],
@@ -242,9 +244,11 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
     ),
   );
 
-  /// Hanya field yang benar-benar dikirim API yang ditampilkan, sehingga
-  /// keyboard dengan data sebagian tidak memunculkan baris kosong.
-  Widget _tabelSpesifikasi(KeyboardDetail kb) {
+  /// Menyusun isi tabel spesifikasi.
+  ///
+  /// Hanya baris yang nilainya benar-benar dikirim API yang dipakai,
+  /// sehingga keyboard dengan data sebagian tidak memunculkan baris kosong.
+  List<_BarisSpesifikasi> _isiSpesifikasi(KeyboardDetail kb) {
     final matriks = (kb.barisMatriks != null && kb.kolomMatriks != null)
         ? '${kb.barisMatriks} x ${kb.kolomMatriks}'
         : null;
@@ -252,23 +256,57 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
         ? '${kb.usbVid} / ${kb.usbPid}'
         : null;
 
-    final baris = <String, String?>{
-      'Folder QMK': kb.folder,
-      'Pabrikan': kb.pabrikan,
-      'Prosesor': kb.prosesor,
-      'Jenis prosesor': kb.jenisProsesor,
-      'Platform': kb.platform,
-      'Bootloader': kb.bootloader,
-      'Matriks (baris x kolom)': matriks,
-      'Arah dioda': kb.arahDioda,
-      'Jumlah LED': kb.jumlahLed?.toString(),
-      'USB VID / PID': usb,
-      'Versi perangkat': kb.versiPerangkat,
-      'Pengelola': kb.pengelola,
-      'Situs resmi': kb.situs,
-    };
+    final semua = [
+      _BarisSpesifikasi(
+        'Folder QMK',
+        kb.folder,
+        keterangan: 'letak berkas pengaturan papan ini di repositori QMK',
+      ),
+      _BarisSpesifikasi('Pabrikan', kb.pabrikan),
+      _BarisSpesifikasi(
+        'Prosesor',
+        kb.prosesor,
+        keterangan: 'mikrokontroler yang menjalankan firmware',
+      ),
+      _BarisSpesifikasi('Jenis prosesor', kb.jenisProsesor),
+      _BarisSpesifikasi('Platform', kb.platform),
+      _BarisSpesifikasi(
+        'Bootloader',
+        kb.bootloader,
+        keterangan: 'mode khusus untuk memasang ulang firmware',
+      ),
+      _BarisSpesifikasi(
+        'Matriks',
+        matriks,
+        keterangan: 'jumlah baris dan kolom jalur pemindaian tombol',
+      ),
+      _BarisSpesifikasi(
+        'Arah dioda',
+        kb.arahDioda,
+        keterangan:
+            'arah arus dioda tiap sakelar, kolom ke baris '
+            'atau sebaliknya',
+      ),
+      _BarisSpesifikasi('Jumlah LED', kb.jumlahLed?.toString()),
+      _BarisSpesifikasi(
+        'USB VID / PID',
+        usb,
+        keterangan: 'pengenal pabrikan dan produk saat papan dicolokkan',
+      ),
+      _BarisSpesifikasi('Versi perangkat', kb.versiPerangkat),
+      _BarisSpesifikasi(
+        'Pengelola',
+        kb.pengelola,
+        keterangan: 'pemelihara dukungan papan ini di QMK',
+      ),
+      _BarisSpesifikasi('Situs resmi', kb.situs),
+    ];
 
-    final terisi = baris.entries.where((e) => e.value != null).toList();
+    return semua.where((b) => b.nilai != null).toList();
+  }
+
+  Widget _tabelSpesifikasi(KeyboardDetail kb) {
+    final baris = _isiSpesifikasi(kb);
 
     return Container(
       decoration: BoxDecoration(
@@ -278,33 +316,8 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
       ),
       child: Column(
         children: [
-          for (var i = 0; i < terisi.length; i++)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-              decoration: BoxDecoration(
-                border: i == terisi.length - 1
-                    ? null
-                    : const Border(bottom: BorderSide(color: Warna.garis)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 132,
-                    child: Text(
-                      terisi[i].key,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Warna.teksRedup,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(terisi[i].value!, style: gayaMono(ukuran: 11)),
-                  ),
-                ],
-              ),
-            ),
+          for (var i = 0; i < baris.length; i++)
+            _BarisTabel(baris: baris[i], terakhir: i == baris.length - 1),
         ],
       ),
     );
@@ -323,7 +336,10 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Warna.garis),
             ),
-            child: Text(f, style: gayaMono(ukuran: 10, warna: Warna.teks)),
+            child: Text(
+              f,
+              style: const TextStyle(fontSize: 11, color: Warna.teks),
+            ),
           ),
       ],
     );
@@ -349,6 +365,67 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
               style: gayaMono(ukuran: 9, warna: Warna.teksRedup),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Satu baris pada tabel spesifikasi.
+///
+/// [keterangan] hanya diisi untuk istilah yang tidak lazim di luar dunia
+/// keyboard custom, agar tabelnya tetap ringkas.
+class _BarisSpesifikasi {
+  const _BarisSpesifikasi(this.label, this.nilai, {this.keterangan});
+
+  final String label;
+  final String? nilai;
+  final String? keterangan;
+}
+
+class _BarisTabel extends StatelessWidget {
+  const _BarisTabel({required this.baris, required this.terakhir});
+
+  final _BarisSpesifikasi baris;
+  final bool terakhir;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        border: terakhir
+            ? null
+            : const Border(bottom: BorderSide(color: Warna.garis)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  baris.label,
+                  style: const TextStyle(fontSize: 11, color: Warna.teks),
+                ),
+                if (baris.keterangan != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    baris.keterangan!,
+                    style: const TextStyle(
+                      fontSize: 9,
+                      height: 1.35,
+                      color: Warna.teksRedup,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(baris.nilai!, style: gayaMono(ukuran: 11))),
         ],
       ),
     );

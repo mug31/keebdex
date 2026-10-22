@@ -33,6 +33,20 @@ class Denah {
 
   int get jumlahTombol => tombol.length;
 
+  /// Nama varian tanpa awalan `LAYOUT_`, dipakai sebagai label pemilih
+  /// varian. Nama inilah yang membedakan dua varian, sebab jumlah
+  /// tombolnya bisa sama persis, misalnya `1x2uL` dan `1x2uR` yang
+  /// sama-sama 47 tombol tetapi berbeda posisi spacebar.
+  String get labelSingkat {
+    const awalan = 'LAYOUT';
+    if (!nama.startsWith(awalan)) return nama;
+
+    // Sebagian papan menamai varian tunggalnya `LAYOUT` saja, tanpa
+    // garis bawah dan tanpa keterangan bentuk, sehingga perlu label ganti.
+    final sisa = nama.substring(awalan.length).replaceFirst(RegExp('^_'), '');
+    return sisa.isEmpty ? 'utama' : sisa;
+  }
+
   /// Lebar dan tinggi denah dalam satuan unit, dipakai widget penggambar
   /// untuk menghitung skala agar denah pas di lebar layar.
   double get lebarUnit =>

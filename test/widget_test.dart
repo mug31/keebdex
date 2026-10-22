@@ -17,8 +17,10 @@ void main() {
     });
 
     test('garis bawah pada nama merek diubah menjadi spasi', () {
-      expect(KeyboardRingkas.dariFolder('wilba_tech/rama_works').merek,
-          'Wilba Tech');
+      expect(
+        KeyboardRingkas.dariFolder('wilba_tech/rama_works').merek,
+        'Wilba Tech',
+      );
     });
 
     test('pencarian cocok pada merek maupun folder', () {
@@ -80,6 +82,29 @@ void main() {
       expect(kb.denah.first.jumlahTombol, 3);
     });
 
+    test('label varian membuang awalan LAYOUT_', () {
+      final kb = KeyboardDetail.dariJson(balasan, 'contoh/papan');
+      expect(kb.denah.map((d) => d.labelSingkat), contains('besar'));
+      expect(kb.denah.map((d) => d.labelSingkat), contains('kecil'));
+    });
+
+    test('nama varian yang hanya LAYOUT diberi label cadangan', () {
+      final kb = KeyboardDetail.dariJson({
+        'keyboards': {
+          'x': {
+            'layouts': {
+              'LAYOUT': {
+                'layout': [
+                  {'x': 0, 'y': 0},
+                ],
+              },
+            },
+          },
+        },
+      }, 'x');
+      expect(kb.denah.single.labelSingkat, 'utama');
+    });
+
     test('lebar tombol tanpa field w dianggap 1 unit', () {
       final kb = KeyboardDetail.dariJson(balasan, 'contoh/papan');
       final kecil = kb.denah.firstWhere((d) => d.nama == 'LAYOUT_kecil');
@@ -87,16 +112,19 @@ void main() {
       expect(kecil.tombol.first.w, 1);
     });
 
-    test('field yang tidak dikirim API bernilai null, bukan melempar galat', () {
-      final kb = KeyboardDetail.dariJson({
-        'keyboards': {
-          'x': {'keyboard_name': 'Minim'},
-        },
-      }, 'x');
-      expect(kb.prosesor, isNull);
-      expect(kb.usbVid, isNull);
-      expect(kb.fitur, isEmpty);
-      expect(kb.denah, isEmpty);
-    });
+    test(
+      'field yang tidak dikirim API bernilai null, bukan melempar galat',
+      () {
+        final kb = KeyboardDetail.dariJson({
+          'keyboards': {
+            'x': {'keyboard_name': 'Minim'},
+          },
+        }, 'x');
+        expect(kb.prosesor, isNull);
+        expect(kb.usbVid, isNull);
+        expect(kb.fitur, isEmpty);
+        expect(kb.denah, isEmpty);
+      },
+    );
   });
 }
