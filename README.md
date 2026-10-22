@@ -35,6 +35,20 @@ susunan tombolnya tanpa perlu membuka repositori firmware.
 | `GET /v1/keyboard_list.json` | Daftar seluruh folder keyboard yang didukung QMK (±3.760 papan) |
 | `GET /v1/keyboards/<folder>/info.json` | Spesifikasi satu keyboard: pabrikan, prosesor, bootloader, matriks, fitur, dan koordinat tiap tombol |
 
+## Rancangan antarmuka
+
+Desain awal disusun di Figma sebelum penulisan kode, mencakup panel fondasi
+(palet warna dan tipografi) serta tiga layar berukuran 390 x 844 piksel.
+
+https://www.figma.com/design/Y7X8yN2RVf55LEwUIMVYaI
+
+## Laporan
+
+Laporan lengkap dalam format PDF, memuat perancangan antarmuka, implementasi,
+serta penjelasan pengambilan dan pengolahan data dari API.
+
+https://drive.google.com/file/d/1qi1p6P3OM_eB8XiGrEAYuicgzbPk7yVO/view?usp=sharing
+
 ## Daftar halaman
 
 | Halaman | Rute | Fungsi |
