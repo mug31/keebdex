@@ -58,6 +58,9 @@ argumen berupa folder keyboard yang dipilih.
   tergambar tanpa mengunduh gambar apa pun.
 - Pemilih varian susunan tombol untuk keyboard yang menyediakan lebih dari
   satu layout.
+- Tombol kembali ke atas pada daftar dan halaman detail. Tombolnya baru muncul
+  setelah guliran melewati 400 piksel, sehingga tidak menutupi isi ketika belum
+  dibutuhkan.
 - Penyimpanan hasil permintaan di memori, sehingga membuka halaman yang sama
   dua kali tidak mengunduh ulang.
 - Penanganan keadaan memuat, kosong, dan gagal, lengkap dengan tombol coba
@@ -81,6 +84,7 @@ lib/
 └── widget/
     ├── kartu_keyboard.dart          kartu daftar dan chip merek
     ├── denah_keyboard.dart          penggambar denah tombol
+    ├── tombol_ke_atas.dart          tombol kembali ke awal daftar
     └── status.dart                  tampilan memuat dan gagal
 ```
 

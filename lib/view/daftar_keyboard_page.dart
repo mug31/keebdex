@@ -5,6 +5,7 @@ import '../service/qmk_api.dart';
 import '../theme.dart';
 import '../widget/kartu_keyboard.dart';
 import '../widget/status.dart';
+import '../widget/tombol_ke_atas.dart';
 
 /// Halaman utama: seluruh keyboard yang didukung QMK, bisa dicari
 /// dan disaring per merek.
@@ -18,6 +19,7 @@ class DaftarKeyboardPage extends StatefulWidget {
 class _DaftarKeyboardPageState extends State<DaftarKeyboardPage> {
   late Future<List<KeyboardRingkas>> _daftar;
   final TextEditingController _pencarian = TextEditingController();
+  final ScrollController _gulir = ScrollController();
   String _merekAktif = _semua;
 
   static const String _semua = 'Semua';
@@ -44,6 +46,7 @@ class _DaftarKeyboardPageState extends State<DaftarKeyboardPage> {
   @override
   void dispose() {
     _pencarian.dispose();
+    _gulir.dispose();
     super.dispose();
   }
 
@@ -127,19 +130,29 @@ class _DaftarKeyboardPageState extends State<DaftarKeyboardPage> {
                         ),
                       ),
                       Expanded(
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
-                          itemCount: hasil.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, i) => KartuKeyboard(
-                            keyboard: hasil[i],
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              '/detail',
-                              arguments: hasil[i].folder,
+                        child: Stack(
+                          children: [
+                            ListView.separated(
+                              controller: _gulir,
+                              padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+                              itemCount: hasil.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, i) => KartuKeyboard(
+                                keyboard: hasil[i],
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  '/detail',
+                                  arguments: hasil[i].folder,
+                                ),
+                              ),
                             ),
-                          ),
+                            Positioned(
+                              right: 20,
+                              bottom: 20,
+                              child: TombolKeAtas(pengendali: _gulir),
+                            ),
+                          ],
                         ),
                       ),
                     ],

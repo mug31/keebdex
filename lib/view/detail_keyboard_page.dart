@@ -5,6 +5,7 @@ import '../service/qmk_api.dart';
 import '../theme.dart';
 import '../widget/denah_keyboard.dart';
 import '../widget/status.dart';
+import '../widget/tombol_ke_atas.dart';
 
 /// Halaman kedua: spesifikasi satu keyboard beserta denah tombolnya.
 class DetailKeyboardPage extends StatefulWidget {
@@ -18,12 +19,19 @@ class DetailKeyboardPage extends StatefulWidget {
 
 class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
   late Future<KeyboardDetail> _detail;
+  final ScrollController _gulir = ScrollController();
   int _indeksDenah = 0;
 
   @override
   void initState() {
     super.initState();
     _detail = QmkApi.instance.ambilDetail(widget.folder);
+  }
+
+  @override
+  void dispose() {
+    _gulir.dispose();
+    super.dispose();
   }
 
   void _muatUlang() {
@@ -66,30 +74,40 @@ class _DetailKeyboardPageState extends State<DetailKeyboardPage> {
               children: [
                 _bilahAtas(kb),
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                  child: Stack(
                     children: [
-                      if (adaDenah) ...[
-                        _panelDenah(kb, indeks),
-                        const SizedBox(height: 20),
-                      ],
-                      _judulBagian('Spesifikasi'),
-                      const SizedBox(height: 10),
-                      _tabelSpesifikasi(kb),
-                      if (kb.fitur.isNotEmpty) ...[
-                        const SizedBox(height: 20),
-                        _judulBagian('Fitur firmware'),
-                        const SizedBox(height: 10),
-                        _daftarFitur(kb.fitur),
-                      ],
-                      if (kb.layoutKomunitas.isNotEmpty) ...[
-                        const SizedBox(height: 20),
-                        _judulBagian('Layout komunitas'),
-                        const SizedBox(height: 10),
-                        _daftarFitur(kb.layoutKomunitas),
-                      ],
-                      const SizedBox(height: 22),
-                      _catatanSumber(kb),
+                      ListView(
+                        controller: _gulir,
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                        children: [
+                          if (adaDenah) ...[
+                            _panelDenah(kb, indeks),
+                            const SizedBox(height: 20),
+                          ],
+                          _judulBagian('Spesifikasi'),
+                          const SizedBox(height: 10),
+                          _tabelSpesifikasi(kb),
+                          if (kb.fitur.isNotEmpty) ...[
+                            const SizedBox(height: 20),
+                            _judulBagian('Fitur firmware'),
+                            const SizedBox(height: 10),
+                            _daftarFitur(kb.fitur),
+                          ],
+                          if (kb.layoutKomunitas.isNotEmpty) ...[
+                            const SizedBox(height: 20),
+                            _judulBagian('Layout komunitas'),
+                            const SizedBox(height: 10),
+                            _daftarFitur(kb.layoutKomunitas),
+                          ],
+                          const SizedBox(height: 22),
+                          _catatanSumber(kb),
+                        ],
+                      ),
+                      Positioned(
+                        right: 20,
+                        bottom: 20,
+                        child: TombolKeAtas(pengendali: _gulir),
+                      ),
                     ],
                   ),
                 ),
